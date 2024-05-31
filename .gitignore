@@ -1,4 +1,6 @@
 # Ambiente de desenvolvimento para o projeto de Hamburgueria
 hambug-venv
 
-**/__pycache__/**
+**__pycache__**
+
+.env/.env 
