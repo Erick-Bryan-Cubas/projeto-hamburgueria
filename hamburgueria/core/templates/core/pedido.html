@@ -4,10 +4,26 @@
 {% block title %}Pedido - Hamburgueria{% endblock %}
 
 {% block content %}
-<h2>Seu Pedido</h2>
-<form action="{% url 'agradecimento' %}" method="post">
-    {% csrf_token %}
-    <!-- Adicione aqui o cardápio e a seleção de quantidades -->
-    <button type="submit">Finalizar Pedido</button>
-</form>
+<h2>Cadastrar Produto</h2>
+{% if user.is_authenticated %}
+    <form action="/pedidos/" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="name">Nome:</label>
+        <input type="text" id="name" name="name" required><br>
+        
+        <label for="description">Descrição:</label>
+        <textarea id="description" name="description" required></textarea><br>
+        
+        <label for="price">Preço:</label>
+        <input type="number" id="price" name="price" required><br>
+        
+        <label for="image">Imagem:</label>
+        <input type="file" id="image" name="image" required><br>
+        
+        <button type="submit">Cadastrar Produto</button>
+    </form>
+{% else %}
+    <p>Você precisa estar logado para cadastrar produtos.</p>
+    <a href="{% url 'login' %}">Login</a>
+{% endif %}
 {% endblock %}

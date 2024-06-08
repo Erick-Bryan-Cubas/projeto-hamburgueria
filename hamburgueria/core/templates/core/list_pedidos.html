@@ -1,0 +1,196 @@
+{% extends 'core/base.html' %}
+{% load cart_tags %}
+
+{% block title %}Cardápio - Hamburgueria{% endblock %}
+
+{% block content %}
+<h2>Cardápio</h2>
+<ul class="list-group">
+    {% for product in products %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+            <h3>{{ product.name }}</h3>
+            <p>{{ product.description }}</p>
+            <p>Preço: R$ {{ product.price }}</p>
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" width="200">
+        </div>
+        <div>
+            <form class="add-to-cart-form" data-product-id="{{ product.id }}" style="display:inline;">
+                {% csrf_token %}
+                <label for="quantity_{{ product.id }}">Quantidade:</label>
+                <input type="number" id="quantity_{{ product.id }}" name="quantity" min="1" value="1" class="form-control">
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-plus-circle"></i>
+                </button>
+            </form>
+            {% if user.is_authenticated %}
+            <form action="{% url 'delete_product' %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-dash-circle"></i>
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+
+<div class="mt-4">
+    <form action="{% url 'clear_cart' %}" method="post" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-warning clear-cart">Limpar Carrinho</button>
+    </form>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#cartModal">
+        Finalizar Pedido
+    </button>
+</div>
+
+<div class="modal fade" id="cartModal" tabindex="-1" role="dialog" aria-labelledby="cartModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cartModalLabel">Seu Pedido</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="cart-items">
+                    {% with cart=request.session.cart %}
+                    {% if cart %}
+                        <ul class="list-group">
+                            {% for product_id, quantity in cart.items %}
+                            {% with product=products|get_item:product_id %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6>{{ product.name }}</h6>
+                                    <p>Quantidade: {{ quantity }}</p>
+                                    <p>Preço Total: R$ {{ product.price|multiply:quantity|floatformat:2 }}</p>
+                                    <button class="btn btn-success btn-sm update-cart" data-product-id="{{ product.id }}" data-quantity="1">
+                                        <i class="bi bi-plus-circle"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm update-cart" data-product-id="{{ product.id }}" data-quantity="-1">
+                                        <i class="bi bi-dash-circle"></i>
+                                    </button>
+                                </div>
+                            </li>
+                            {% endwith %}
+                            {% endfor %}
+                        </ul>
+                        <form action="{% url 'apply_coupon' %}" method="post" class="mt-3">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="coupon">Cupom de Desconto:</label>
+                                <input type="text" id="coupon" name="coupon" class="form-control" placeholder="Insira o código do cupom">
+                            </div>
+                            <button type="submit" class="btn btn-info">Aplicar Cupom</button>
+                        </form>
+                    {% else %}
+                        <p>O carrinho está vazio.</p>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                <a href="{% url 'agradecimento' %}" class="btn btn-primary">Confirmar Pedido</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var socket = new WebSocket('ws://' + window.location.host + '/ws/cart/');
+    
+        socket.onopen = function() {
+            console.log('WebSocket connected');
+        };
+    
+        socket.onclose = function() {
+            console.log('WebSocket disconnected');
+        };
+    
+        document.querySelectorAll('.add-to-cart-form').forEach(form => {
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                var product_id = form.getAttribute('data-product-id');
+                var quantity = form.querySelector('input[name="quantity"]').value;
+    
+                var data = JSON.stringify({
+                    action: 'add',
+                    product_id: product_id,
+                    quantity: quantity,
+                    session_key: '{{ request.session.session_key }}'
+                });
+    
+                console.log('Sending data:', data);
+                socket.send(data);
+            });
+        });
+    
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('update-cart')) {
+                event.preventDefault();
+                var button = event.target;
+                var product_id = button.getAttribute('data-product-id');
+                var quantity = button.getAttribute('data-quantity');
+    
+                var data = JSON.stringify({
+                    action: 'remove',
+                    product_id: product_id,
+                    quantity: quantity,
+                    session_key: '{{ request.session.session_key }}'
+                });
+    
+                console.log('Sending data:', data);
+                socket.send(data);
+            }
+        });
+    
+        document.querySelector('.clear-cart').addEventListener('click', function(event) {
+            event.preventDefault();
+            var data = JSON.stringify({
+                action: 'clear',
+                session_key: '{{ request.session.session_key }}'
+            });
+    
+            console.log('Sending data:', data);
+            socket.send(data);
+        });
+    
+        socket.onmessage = function(event) {
+            var data = JSON.parse(event.data);
+            console.log('Received data:', data);
+            if (data.status === 'success') {
+                console.log('Reloading cart items...');
+                document.getElementById('cart-items').innerHTML = ''; 
+                var cartItems = data.cart;
+                for (var product_id in cartItems) {
+                    var quantity = cartItems[product_id];
+                    var product = products.find(p => p.id == product_id);
+                    if (product) {
+                        var listItem = document.createElement('li');
+                        listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+                        listItem.innerHTML = `
+                            <div>
+                                <h6>${product.name}</h6>
+                                <p>Quantidade: ${quantity}</p>
+                                <p>Preço Total: R$ ${(product.price * quantity).toFixed(2)}</p>
+                                <button class="btn btn-success btn-sm update-cart" data-product-id="${product.id}" data-quantity="1">
+                                    <i class="bi bi-plus-circle"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm update-cart" data-product-id="${product.id}" data-quantity="-1">
+                                    <i class="bi bi-dash-circle"></i>
+                                </button>
+                            </div>`;
+                        document.getElementById('cart-items').appendChild(listItem);
+                    }
+                }
+            }
+        };
+    });
+</script>
+{% endblock %}

@@ -1,6 +1,11 @@
 # Ambiente de desenvolvimento para o projeto de Hamburgueria
 hambug-venv
 
+# Pasta de cache
 **__pycache__**
 
-.env/.env 
+# Arquivo env que contém as variáveis de ambiente
+hamburgueria/.env
+
+# Imagens do projeto
+images/
