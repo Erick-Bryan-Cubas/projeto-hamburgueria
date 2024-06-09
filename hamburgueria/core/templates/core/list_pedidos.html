@@ -102,6 +102,11 @@
                         </div>
                         <button type="submit" class="btn btn-info">Aplicar Cupom</button>
                     </form>
+                    <hr>
+                    <p>Subtotal: R$ {{ total_price|floatformat:2 }}</p>
+                    <p>Desconto: R$ {{ discount|floatformat:2 }}</p>
+                    <p>Frete: R$ {{ shipping_cost|floatformat:2 }}</p>
+                    <h5>Preço Final: R$ {{ final_price|floatformat:2 }}</h5>
                 {% else %}
                     <p>O carrinho está vazio.</p>
                 {% endif %}

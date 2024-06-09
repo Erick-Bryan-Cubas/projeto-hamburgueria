@@ -32,11 +32,19 @@ def agradecimento(request):
     if coupon == "DESC10":
         discount = total_price * 0.1
 
+    if total_price >= 80:
+        shipping_cost = 0
+    else:
+        shipping_cost = 15
+
+    final_price = total_price - discount + shipping_cost
+
     context = {
         'products': products,
         'total_price': total_price,
         'discount': discount,
-        'final_price': total_price - discount,
+        'shipping_cost': shipping_cost,
+        'final_price': final_price,
     }
     return render(request, 'core/agradecimento.html', context)
 
@@ -76,7 +84,31 @@ def delete_product(request):
 
 def list_pedidos(request):
     products = Product.objects.all()
-    return render(request, 'core/list_pedidos.html', {'products': products})
+    cart = request.session.get('cart', {})
+    coupon = request.session.get('coupon', '')
+    discount = 0
+    total_price = 0
+    for product_id, quantity in cart.items():
+        product = get_object_or_404(Product, id=product_id)
+        total_price += product.price * quantity
+
+    if coupon == "DESC10":
+        discount = total_price * 0.1
+
+    if total_price >= 80:
+        shipping_cost = 0
+    else:
+        shipping_cost = 15
+
+    final_price = total_price - discount + shipping_cost
+
+    return render(request, 'core/list_pedidos.html', {
+        'products': products,
+        'total_price': total_price,
+        'discount': discount,
+        'shipping_cost': shipping_cost,
+        'final_price': final_price,
+    })
 
 def add_to_cart(request):
     if request.method == 'POST':
