@@ -17,7 +17,7 @@ export default function SimpleBottomNavigation() {
     } else if (newValue === 1) {
       window.location.href = "/list_pedidos";
     } else if (newValue === 2) {
-      window.location.href = "/pedidos";  // Ajustado para 'pedidos'
+      window.location.href = "/pedidos";
     }
   };
 
@@ -27,10 +27,23 @@ export default function SimpleBottomNavigation() {
         showLabels
         value={value}
         onChange={handleChange}
+        sx={{ bgcolor: '#fcbf49' }} // Cor de fundo
       >
-        <BottomNavigationAction label="Contato via WhatsApp" icon={<WhatsAppIcon />} />
-        <BottomNavigationAction label="Fazer Pedido" icon={<ShoppingCartIcon />} />
-        <BottomNavigationAction label="Cadastrar Produto" icon={<AddBoxIcon />} />
+        <BottomNavigationAction 
+          label="Contato via WhatsApp" 
+          icon={<WhatsAppIcon />} 
+          sx={{ ':hover': { boxShadow: 3 } }} 
+        />
+        <BottomNavigationAction 
+          label="Fazer Pedido" 
+          icon={<ShoppingCartIcon />} 
+          sx={{ ':hover': { boxShadow: 3 } }} 
+        />
+        <BottomNavigationAction 
+          label="Cadastrar Produto" 
+          icon={<AddBoxIcon />} 
+          sx={{ ':hover': { boxShadow: 3 } }} 
+        />
       </BottomNavigation>
     </Box>
   );
