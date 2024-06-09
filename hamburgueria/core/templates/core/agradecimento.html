@@ -4,6 +4,23 @@
 {% block title %}Agradecimento - Hamburgueria{% endblock %}
 
 {% block content %}
-<h2>Obrigado pela Compra!</h2>
-<p>Seu pedido está em preparação e será entregue em breve.</p>
+<h2>Agradecimento</h2>
+<p>Obrigado por seu pedido! Aqui estão os detalhes:</p>
+<ul class="list-group">
+    {% for item in products %}
+    <li class="list-group-item">
+        <h5>{{ item.product.name }}</h5>
+        <p>Quantidade: {{ item.quantity }}</p>
+        <p>Preço Total: R$ {{ item.total_price|floatformat:2 }}</p>
+    </li>
+    {% endfor %}
+</ul>
+<hr>
+<p>Subtotal: R$ {{ total_price|floatformat:2 }}</p>
+<p>Desconto: R$ {{ discount|floatformat:2 }}</p>
+<p>Frete: R$ {{ shipping_cost|floatformat:2 }}</p>
+<h5>Preço Final: R$ {{ final_price|floatformat:2 }}</h5>
+<hr>
+<p>Tempo estimado de preparo: {{ preparation_time }} minutos</p>
+<a href="{% url 'home' %}" class="btn btn-primary">Voltar ao Início</a>
 {% endblock %}

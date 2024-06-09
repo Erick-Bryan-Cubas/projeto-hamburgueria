@@ -19,6 +19,7 @@ def agradecimento(request):
     discount = 0
     products = []
     total_price = 0
+    total_preparation_time = 0
     for product_id, quantity in cart.items():
         product = get_object_or_404(Product, id=product_id)
         total_product_price = product.price * quantity
@@ -28,6 +29,7 @@ def agradecimento(request):
             'total_price': total_product_price,
         })
         total_price += total_product_price
+        total_preparation_time += product.preparation_time * quantity
 
     if coupon == "DESC10":
         discount = total_price * 0.1
@@ -45,6 +47,7 @@ def agradecimento(request):
         'discount': discount,
         'shipping_cost': shipping_cost,
         'final_price': final_price,
+        'preparation_time': total_preparation_time,
     }
     return render(request, 'core/agradecimento.html', context)
 
@@ -65,10 +68,11 @@ def create_user(request):
 def create_product(request):
     if request.method == 'POST':
         name = request.POST['name']
-        description = request.POST['description']
+        description = request.POST.get('description', '')
         price = request.POST['price']
         image = request.FILES['image']
-        product = Product(name=name, description=description, price=price, image=image)
+        preparation_time = request.POST['preparation_time']
+        product = Product(name=name, description=description, price=price, image=image, preparation_time=preparation_time)
         product.save()
         return redirect('pedido')
     return redirect('pedido')
