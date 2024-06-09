@@ -1,12 +1,12 @@
+# core/templatetags/cart_tags.py
 from django import template
+from core.models import Product
 
 register = template.Library()
 
 @register.filter
 def get_item(dictionary, key):
-    if isinstance(dictionary, dict):
-        return dictionary.get(key)
-    return None
+    return Product.objects.get(id=key)
 
 @register.filter
 def multiply(value, arg):

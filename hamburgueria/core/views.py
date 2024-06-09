@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from .models import Product
-from django.http import JsonResponse
 
 def home(request):
     return render(request, 'core/home.html')
@@ -71,7 +70,6 @@ def delete_product(request):
     if request.method == 'POST':
         product_id = request.POST.get('product_id')
         product = get_object_or_404(Product, id=product_id)
-        product.image.delete()
         product.delete()
         return redirect('list_pedidos')
     return redirect('list_pedidos')
@@ -90,8 +88,7 @@ def add_to_cart(request):
         else:
             cart[product_id] = quantity
         request.session['cart'] = cart
-        return JsonResponse({'status': 'success'})
-    return JsonResponse({'status': 'fail'})
+    return redirect('list_pedidos')
 
 def remove_from_cart(request):
     if request.method == 'POST':
@@ -103,12 +100,10 @@ def remove_from_cart(request):
             if cart[product_id] <= 0:
                 del cart[product_id]
         request.session['cart'] = cart
-        return JsonResponse({'status': 'success'})
-    return JsonResponse({'status': 'fail'})
+    return redirect('list_pedidos')
 
 def clear_cart(request):
     request.session['cart'] = {}
-    #request.session.save()
     return redirect('list_pedidos')
 
 def apply_coupon(request):

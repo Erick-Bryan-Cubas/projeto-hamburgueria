@@ -12,9 +12,9 @@ urlpatterns = [
     path('pedidos/', views.create_product, name='create_product'),
     path('list_pedidos/', views.list_pedidos, name='list_pedidos'),
     path('add_to_cart/', views.add_to_cart, name='add_to_cart'),
-    path('remove_from_cart/', views.remove_from_cart, name='remove_from_cart'),  # URL para remover itens do carrinho
+    path('remove_from_cart/', views.remove_from_cart, name='remove_from_cart'),  # Nova URL para remover itens do carrinho
     path('clear_cart/', views.clear_cart, name='clear_cart'),
-    path('apply_coupon/', views.apply_coupon, name='apply_coupon'),  # URL para aplicar cupom
+    path('apply_coupon/', views.apply_coupon, name='apply_coupon'),  # Nova URL para aplicar cupom
     path('delete_product/', views.delete_product, name='delete_product'),
     path('login/', auth_views.LoginView.as_view(template_name='core/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
