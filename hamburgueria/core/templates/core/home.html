@@ -1,13 +1,14 @@
 <!-- core/templates/core/home.html -->
 {% extends 'core/base.html' %}
+{% load static %}
 
 {% block title %}Home - Hamburgueria{% endblock %}
 
 {% block content %}
 <h2>Bem-vindo à nossa Hamburgueria</h2>
-<a href="https://wa.me/SEU_NUMERO_DE_WHATSAPP">Contato via WhatsApp</a>
-<a href="{% url 'list_pedidos' %}">Fazer Pedido</a>
-{% if user.is_authenticated %}
-    <a href="{% url 'create_product' %}">Cadastrar Produto</a>
-{% endif %}
+<div id="bottom-nav-container"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'core/js/dist/bundle.js' %}"></script>
 {% endblock %}

@@ -11,6 +11,10 @@
     <link rel="icon" href="{% static 'core/favicon.ico' %}" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/react/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@mui/material/umd/material-ui.production.min.js"></script>
+    <script src="https://unpkg.com/@mui/icons-material/umd/material-ui-icons.production.min.js"></script>
     <style>
         body {
             background-color: #f8f9fa;
@@ -34,6 +38,11 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+        .logo {
+            width: 400px; /* Define a largura da logo */
+            height: 100px; /* Define a altura da logo */
+            object-fit: contain; /* Garante que a imagem seja ajustada dentro do contêiner sem distorção */
+        }
     </style>
 </head>
 <body>
@@ -42,7 +51,9 @@
             <a href="{% url 'home' %}" class="btn btn-light">
                 <i class="bi bi-house-fill"></i> Menu Principal
             </a>
-            <h1>Hamburgueria</h1>
+            <h1>
+                <img src="{% static 'core/Logo_escura-fundo-transp.png' %}" alt="Hamburger Gourmet Estácio de Goiás" class="logo">
+            </h1>
             <div>
                 {% if user.is_authenticated %}
                     <form action="{% url 'logout' %}" method="post" style="display:inline;">
@@ -65,5 +76,6 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

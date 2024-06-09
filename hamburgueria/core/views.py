@@ -75,7 +75,7 @@ def create_product(request):
         product = Product(name=name, description=description, price=price, image=image, preparation_time=preparation_time)
         product.save()
         return redirect('pedido')
-    return redirect('pedido')
+    return render(request, 'core/pedido.html')
 
 @login_required
 def delete_product(request):

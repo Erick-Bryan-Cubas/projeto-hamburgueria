@@ -9,3 +9,5 @@ hamburgueria/.env
 
 # Imagens do projeto
 images/
+
+hamburgueria/node_modules/**
