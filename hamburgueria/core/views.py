@@ -1,4 +1,5 @@
 # core/views.py
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
@@ -23,6 +24,10 @@ def agradecimento(request):
     for product_id, quantity in cart.items():
         product = get_object_or_404(Product, id=product_id)
         total_product_price = product.price * quantity
+
+        if product.discount:
+            total_product_price *= (1 - product.discount / 100)
+
         products.append({
             'product': product,
             'quantity': quantity,
@@ -72,10 +77,13 @@ def create_product(request):
         price = request.POST['price']
         image = request.FILES['image']
         preparation_time = request.POST['preparation_time']
-        product = Product(name=name, description=description, price=price, image=image, preparation_time=preparation_time)
+        discount = request.POST.get('discount', None)
+        if discount:
+            discount = float(discount)
+        product = Product(name=name, description=description, price=price, image=image, preparation_time=preparation_time, discount=discount)
         product.save()
         return redirect('pedido')
-    return render(request, 'core/pedido.html')
+    return redirect('pedido')
 
 @login_required
 def delete_product(request):
@@ -94,7 +102,10 @@ def list_pedidos(request):
     total_price = 0
     for product_id, quantity in cart.items():
         product = get_object_or_404(Product, id=product_id)
-        total_price += product.price * quantity
+        product_total = product.price * quantity
+        if product.discount:
+            product_total *= (1 - product.discount / 100)
+        total_price += product_total
 
     if coupon == "DESC10":
         discount = total_price * 0.1
