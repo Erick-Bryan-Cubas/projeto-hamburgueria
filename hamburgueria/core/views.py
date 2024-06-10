@@ -7,7 +7,8 @@ from django.contrib.auth.decorators import login_required
 from .models import Product
 
 def home(request):
-    return render(request, 'core/home.html')
+    products = Product.objects.all()
+    return render(request, 'core/home.html', {'products': products})
 
 def pedido(request):
     if not request.user.is_authenticated:
