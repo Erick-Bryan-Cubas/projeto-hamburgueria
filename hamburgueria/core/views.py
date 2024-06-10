@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from .models import Product
+from .forms import ProductForm  # Certifique-se de que este import está presente
 
 def home(request):
     products = Product.objects.all()
@@ -73,18 +74,13 @@ def create_user(request):
 @login_required
 def create_product(request):
     if request.method == 'POST':
-        name = request.POST['name']
-        description = request.POST.get('description', '')
-        price = request.POST['price']
-        image = request.FILES['image']
-        preparation_time = request.POST['preparation_time']
-        discount = request.POST.get('discount', None)
-        if discount:
-            discount = float(discount)
-        product = Product(name=name, description=description, price=price, image=image, preparation_time=preparation_time, discount=discount)
-        product.save()
-        return redirect('pedido')
-    return redirect('pedido')
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('pedido')
+    else:
+        form = ProductForm()
+    return render(request, 'core/pedido.html', {'form': form})
 
 @login_required
 def delete_product(request):
@@ -94,6 +90,18 @@ def delete_product(request):
         product.delete()
         return redirect('list_pedidos')
     return redirect('list_pedidos')
+
+@login_required
+def edit_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            form.save()
+            return redirect('list_pedidos')
+    else:
+        form = ProductForm(instance=product)
+    return render(request, 'core/edit_product.html', {'form': form, 'product': product})
 
 def list_pedidos(request):
     products = Product.objects.all()
